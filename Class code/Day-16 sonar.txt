@@ -1,0 +1,56 @@
+#include <Wire.h> 
+#include <LiquidCrystal_I2C.h>
+
+LiquidCrystal_I2C lcd(0x27,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
+
+inline void lcd_txt(float& val, int unit)
+{
+  lcd.setCursor(0,0); // col, line
+  lcd.print("Distance ");
+  if(unit==1)
+  {
+    lcd.print("(inch):");
+  }
+  else
+  {
+    lcd.print("(cm):");
+  }
+  lcd.setCursor(0,1);
+  lcd.print(String(val));
+}
+
+long Read_Sonar(byte triggerPin, byte echoPin)
+{
+  pinMode(triggerPin, OUTPUT);  // Clear the trigger
+  digitalWrite(triggerPin, LOW);
+  delayMicroseconds(2);
+  // Sets the trigger pin to HIGH state for 10 microseconds
+  digitalWrite(triggerPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(triggerPin, LOW);
+  pinMode(echoPin, INPUT);
+  // Reads the echo pin, and returns the sound wave travel time in microseconds
+  return pulseIn(echoPin, HIGH);
+}
+
+inline void distance_calc(float& cm, float& inch)
+{
+  cm= 0.01723 * Read_Sonar(7, 7);  //PIN 7
+  inch = (cm / 2.54);
+}
+
+void setup()
+{
+  Serial.begin(9600);
+  lcd.init();                      // initialize the lcd 
+  lcd.init();
+  // Print a message to the LCD.
+  lcd.backlight();
+}
+
+void loop()
+{
+  float cm, inch;
+  distance_calc(cm,inch);
+  lcd_txt(inch, 1);
+}

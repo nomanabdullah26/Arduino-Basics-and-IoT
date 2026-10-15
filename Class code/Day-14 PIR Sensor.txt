@@ -1,0 +1,29 @@
+int pir = 7;
+int buzzer = 11;
+int led = 13;
+
+void setup() 
+{
+  pinMode(pir,INPUT);
+  pinMode(buzzer,OUTPUT);
+  pinMode(led,OUTPUT);
+
+  Serial.begin(9600);
+
+}
+
+void loop() 
+{
+  int val = digitalRead(pir);
+  if(val == HIGH)
+  {
+    digitalWrite(led,HIGH);
+    digitalWrite(buzzer,HIGH);
+    Serial.println("Motion Detected");
+  }
+  else
+  {
+    digitalWrite(led,LOW);
+    digitalWrite(buzzer,LOW);
+  }
+}
