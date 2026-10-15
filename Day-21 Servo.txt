@@ -1,0 +1,37 @@
+#include <Servo.h>
+#define Servo_Pin 9
+#define POT A0
+
+Servo s1;
+
+void setup()
+{
+  s1.attach(Servo_Pin);
+  pinMode(POT,INPUT);
+  Serial.begin(9600);
+  writePosition(0);
+}
+
+byte readPosition()
+{
+  return s1.read();
+}
+
+void writePosition(byte degree)
+{
+  degree = constrain(degree, 0, 180);
+  s1.write(degree);
+  byte pos = s1.read();
+  while(pos == !degree)
+  {
+    pos = s1.read();
+  }
+}
+
+void loop()
+{
+  int x= analogRead(POT);
+  x= map(x,0,1023,0,180); //scale to 0-180
+  writePosition(x);
+  Serial.println(readPosition());
+}

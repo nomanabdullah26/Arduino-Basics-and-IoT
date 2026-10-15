@@ -1,0 +1,70 @@
+#include <Wire.h>
+
+const int buttonPin = A1;  // the number of the pushbutton pin
+int buttonState;            // the current reading from the input pin
+int lastButtonState = 1;  // the previous reading from the input pin
+unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
+
+void setup() 
+{
+  pinMode(buttonPin, INPUT_PULLUP);
+  Serial.begin(9600);
+  Wire.begin();
+}
+
+void loop() 
+{
+  int reading = digitalRead(buttonPin);
+  if (reading != lastButtonState) 
+  {
+    lastDebounceTime = millis();
+  }
+  if ((millis() - lastDebounceTime) > 50) 
+  {
+    if (reading != buttonState) 
+    {
+      buttonState = reading;
+      if (buttonState == LOW) 
+      {
+        // button event---------------------------------
+        Task();
+      }
+    }
+  }
+  lastButtonState = reading;
+}
+
+//DEMO FUNCTIONS ===============================
+
+void ReadMem(byte addr) //For Reading data
+{
+  Wire.beginTransmission(10);
+  Wire.write(addr);
+  Wire.endTransmission();
+  
+  Wire.requestFrom(10,1);
+  byte x= Wire.read();
+  
+  Serial.print(F("Read: \t"));
+  Serial.println(x);
+}
+
+void WriteMem(byte addr, byte val) //For Writing data
+{
+  Wire.beginTransmission(10);
+  Wire.write(addr);
+  Wire.write(val);
+  Wire.endTransmission();
+  
+  Serial.print(F("Write: \t"));
+  Serial.println(val);
+}
+
+void Task()
+{
+  static byte count;
+  WriteMem(2, count); // Writing data to address 2
+  ReadMem(2);         // Reading data from address 2
+  Serial.println(F("-------------------------"));
+  count++;
+}

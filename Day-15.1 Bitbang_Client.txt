@@ -1,0 +1,87 @@
+#include <Wire.h>
+
+/*
+    EEPROM (DUMMY) (Slave)
+    
+    Device (Slave, this device) ID: 10
+
+    Connect with standard i2c pins. In this example we will use standard wire library.
+    
+    I2C PINS (slave):
+    =====================
+    SDA = Analog 4 (A4)
+    SCL = Analog 5 (A5)
+
+    Make sure the ground connection is common between two boards.
+
+*/
+
+
+byte data=10; //Storage area
+
+void setup()
+{
+  pinMode(6,OUTPUT);
+  pinMode(7,OUTPUT);
+  pinMode(8,OUTPUT);
+  pinMode(9,OUTPUT);
+  pinMode(10,OUTPUT);
+  pinMode(11,OUTPUT);
+  pinMode(12,OUTPUT);
+  pinMode(13,OUTPUT);
+  Wire.begin(10);               //Slave address: 10
+  Wire.onReceive(receiveEvent);
+  Wire.onRequest(requestEvent);
+  Serial.begin(9600);
+}
+
+void receiveEvent(int howMany) 
+{
+  byte rx = Wire.available();
+  if(rx==1)
+   {
+    byte d = Wire.read(); 
+    data=d;
+    Serial.print("Data Saved, Data: ");
+    Serial.println(data);
+   }  
+}
+
+void requestEvent() 
+{ 
+  Wire.write(data);
+  Serial.print("Data sent: ");
+  Serial.print(data,BIN);
+  Serial.print("     ");
+  Serial.println(data,DEC);
+  Serial.println("-----------------------------------------");
+}
+
+void loop() 
+{
+  bool tmp;
+  tmp = bitRead(data, 0);
+  digitalWrite(6 , tmp);
+  
+  tmp = bitRead(data, 1);
+  digitalWrite(7 , tmp);
+  
+  tmp = bitRead(data, 2);
+  digitalWrite(8 , tmp);
+  
+  tmp = bitRead(data, 3);
+  digitalWrite(9 , tmp);
+  
+  tmp = bitRead(data, 4);
+  digitalWrite(10 , tmp);
+  
+  tmp = bitRead(data, 5);
+  digitalWrite(11 , tmp);
+  
+  tmp = bitRead(data, 6);
+  digitalWrite(12 , tmp);
+  
+  tmp = bitRead(data, 7);
+  digitalWrite(13 , tmp);
+  
+}

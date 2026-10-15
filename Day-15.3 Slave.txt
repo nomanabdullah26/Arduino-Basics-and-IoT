@@ -1,0 +1,112 @@
+/*
+    EEPROM (DUMMY) (Slave)
+    Valid address range: 0-9
+    Device (Slave, this device) ID: 10
+
+    Connect with standard i2c pins. In this example we will use standard wire library.
+    
+    I2C PINS (slave):
+    =====================
+    SDA = Analog 4 (A4)
+    SCL = Analog 5 (A5)
+
+    Make sure the ground connection is common between two boards.
+
+*/
+
+#include <Wire.h>
+
+byte address;
+byte data[10]={255,255,255,255,255,255,255,255,255,255}; //Storage area
+bool ready;
+
+void setup()
+{
+  pinMode(13,OUTPUT);
+  Wire.begin(10);               //Slave address: 10
+  Wire.onReceive(receiveEvent);
+  Wire.onRequest(requestEvent);
+  Serial.begin(9600);
+}
+
+void receiveEvent(int howMany) 
+{
+  byte rx = Wire.available();
+   if(rx==1)
+   {         
+            address = Wire.read(); 
+            if(address<10)
+            {
+              ready=1;
+              Serial.print("Request Address: ");
+              Serial.println(address);
+            }
+            else
+            {
+              Serial.println("Invalid address1.");
+            }
+   }
+
+   else if(rx==2)
+   {
+            byte a = Wire.read(); 
+            byte d = Wire.read(); 
+            if(a<10)
+            {
+              digitalWrite(13,0);
+              save(&a, &d);
+            }
+            else
+            {
+              Serial.println("Invalid address2.");
+            }
+  }
+}
+
+void requestEvent() 
+{ 
+ if(ready)
+ {
+  digitalWrite(13,1);
+  Get();
+  ready=0;
+ }
+ else
+ {
+  Serial.println("Invalid Request");
+ }
+}
+
+void save(byte *a, byte *d)
+{
+  data[*a] = *d;
+  Serial.print("Data Saved, Address: ");
+  Serial.print(*a);
+  Serial.print(" Data: ");
+  Serial.println(data[*a]);
+}
+
+void Get()
+{
+  Wire.write(data[address]);
+  Serial.print("Data sent: ");
+  Serial.print(data[address],BIN);
+  Serial.print("   ");
+  Serial.println(data[address],DEC);
+  DATA_PRINT();
+  Serial.println("-----------------------------------------");
+}
+
+void DATA_PRINT()
+{
+  for(int i=0; i<10;i++)
+  {
+    Serial.print(i);
+    Serial.print("\t");
+    Serial.println(data[i]);
+  } 
+}
+void loop() 
+{
+  //Nothing here.
+}
